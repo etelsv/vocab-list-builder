@@ -20,7 +20,7 @@ function translateWord(wordSought) {
       var englishDefinition = body.def[0].tr[0].text;
       console.log("german word = " + germanWord);
       console.log("gender = " + wordGender);
-      //console.log("word endings = " + wordEndings);
+      console.log("word endings = " + wordEndings);
       console.log("plural= " + wordPlural);
       console.log("definition = " + englishDefinition);
       console.log("");
@@ -38,7 +38,12 @@ function getPluralOnly(wordEndings) {
 }
 
 function wordsToTranslate(paragraph) {
-  var paragraphArray = paragraph.split(" ");
+  var paragraphArray = paragraph
+    .split(" ")
+    .join(",")
+    .split(":")
+    .join(".")
+    .split(",");
   for (var i = 0; i < paragraphArray.length; i++) {
     console.log(paragraphArray[i]);
     translateWord(paragraphArray[i]);
@@ -47,5 +52,6 @@ function wordsToTranslate(paragraph) {
 }
 
 //translateWord("kalender");
-wordsToTranslate(`Die Geschichte vom Lebkuchenmann Es war einmal eine kleine alte Frau und ein kleiner alter Mann, die in einem kleinen alten Haus lebten. Eines Tages entschied sich die kleine alte Frau einen Lebkuchenmann zu backen. Sie bereitete einen Teig vor und gab Eier, Mehl, Zucker und Honig in eine Schüssel. Dann kamen noch die wohl duftenden Gewürze hinzu: Anis, Ingwer, Kardamon, Koriander, Muskatblüten, Nelken, Piment und Zimt.    
-Das alles verrührte sie zu einem Teig, ließ ihn ein wenig rasten und dann rollte sie den Teig aus und schnitt einen Lebkuchenmann daraus. Sie schob ihn in den Ofen und wartete eine Weile. Plötzlich rumpelte und pumpelte es in dem Ofen und sie öffnete die Ofentür. Da sprang der Lebkuchenmann heraus und lief durch die Vordertür hinaus in den Garten. `);
+wordsToTranslate(
+  `Die Geschichte vom Lebkuchenmann Es war einmal eine kleine alte Frau und ein kleiner alter Mann`
+);
