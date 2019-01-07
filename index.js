@@ -16,6 +16,7 @@ class Word {
     this.partOfSpeech = partOfSpeech;
     this.wordEndings = wordEndings;
     this.wordGender = wordGender;
+    this.englishDefinition = englishDefinition;
   }
 }
 
