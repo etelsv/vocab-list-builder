@@ -1,64 +1,87 @@
-const request = require("request");
+const request = require("request-promise");
 const key =
   "dict.1.1.20190101T143458Z.9e934ebb5eb8f106.4c671e8c7f3a082535985d61affef702184348ad";
 var troubledWords = [];
 var vocabList = [];
 
+var inquirer = require("inquirer");
+
 class Word {
-  constructor(
-    germanWord,
-    partOfSpeech,
-    wordEndings,
-    wordGender,
-    englishDefinition
-  ) {
+  constructor(germanWord, partOfSpeech, wordEndings, wordGender, definition) {
     this.germanWord = germanWord;
     this.partOfSpeech = partOfSpeech;
     this.wordEndings = wordEndings;
     this.wordGender = wordGender;
-    this.englishDefinition = englishDefinition;
+    this.definition = definition;
   }
 }
 
 function translateWord(wordSought) {
-  request(
+  return request(
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-    { json: true },
-    (err, res, body) => {
-      if (err) {
-        return console.log(err);
-      }
-
+    { json: true }
+  )
+    .then(body => {
       try {
         var germanWord = body.def[0].text;
         var partOfSpeech = body.def[0].pos;
         var wordEndings = body.def[0].fl;
         //var wordPlural = getPluralOnly(wordEndings);
         var wordGender = body.def[0].gen;
-        var englishDefinition = body.def[0].tr[0].text;
+        var definition = body.def[0].tr[0].text;
 
         // console.log("german word = " + germanWord);
         // console.log("Part of Speech = " + partOfSpeech);
         // console.log("gender = " + wordGender);
         // console.log("word endings = " + wordEndings);
         // //console.log("plural= " + wordPlural);
-        // console.log("definition = " + englishDefinition);
+        // console.log("definition = " + definition);
         // console.log("");
+        // console.log(
+        //   `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`
+        // );
         var aword = new Word(
           germanWord,
           partOfSpeech,
           wordEndings,
           wordGender,
-          englishDefinition
+          definition
         );
         vocabList.push(aword);
       } catch (err) {
-        troubledWords.push(wordSought);
+        return request(
+          `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-ru&text=${wordSought}`,
+          { json: true }
+        ).then(body => {
+          try {
+            var germanWord = body.def[0].text;
+            var partOfSpeech = body.def[0].pos;
+            var wordEndings = body.def[0].fl;
+            //var wordPlural = getPluralOnly(wordEndings);
+            var wordGender = body.def[0].gen;
+            var definition = body.def[0].tr[0].text;
+            var aword = new Word(
+              germanWord,
+              partOfSpeech,
+              wordEndings,
+              wordGender,
+              definition
+            );
+            vocabList.push(aword);
+
+            // console.log(body.def[0].text);
+            // console.log(body.def[0].tr[0].text);
+          } catch (err) {
+            troubledWords.push(wordSought);
+          }
+        });
 
         //return troubledWords;
       }
-    }
-  );
+    })
+    .catch(error => {
+      //console.error(error);
+    });
 }
 
 function getPluralOnly(wordEndings) {
@@ -74,15 +97,18 @@ function getPluralOnly(wordEndings) {
   }
 }
 
-function createVocabList(paragraphArray) {
+async function createVocabList(paragraphArray) {
   for (var i = 0; i < paragraphArray.length; i++) {
     //console.log(paragraphArray[i]);
-    translateWord(paragraphArray[i]);
+    await translateWord(paragraphArray[i]);
     //console.log(i);
   }
+
+  // await Promise.all(paragraphArray.map(a => translateWord(a)))
+  displayInterestingThings();
 }
 
-function arrangeWordsForTranslation(wordsToTranslate) {
+async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
   var wordsToTranslate2 = wordsToTranslate.replace(
     /[.,\/#!$%\^&\*;:{}=\-_`~()]/g,
     " "
@@ -90,9 +116,23 @@ function arrangeWordsForTranslation(wordsToTranslate) {
   var lcwordsToTranslate = wordsToTranslate2.toLowerCase();
   var paragraphArray = lcwordsToTranslate.split(" ");
   var wordsWithoutDups = Array.from(new Set(paragraphArray));
-  var sorted = wordsWithoutDups.sort();
-  // console.log(sorted);
-  createVocabList(sorted);
+  var choices = wordsWithoutDups.sort();
+  inquirer
+    .prompt([
+      {
+        type: "checkbox",
+        name: "name",
+        message: "Select the words you want to look up!",
+        paginated: true,
+        choices: choices
+      }
+    ])
+    .then(answers => {
+      console.log(JSON.stringify(answers, null, "  "));
+      return answers;
+    });
+
+  //await createVocabList(answers.name);
 }
 
 function displayInterestingThings() {
@@ -100,18 +140,10 @@ function displayInterestingThings() {
   console.log(vocabList);
 }
 
-Word.sort(function(a, b){
-  var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-  if (nameA < nameB) //sort string ascending
-      return -1 
-  if (nameA > nameB)
-      return 1
-  return 0 //default return value (no sorting)
-
 arrangeWordsForTranslation(
-  `Die Tochter eines reichen Mannes wächst wohlbehütet auf. Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. Zwei Jahre nach dem Tod ihrer Mutter heiratet der Vater eine Witwe, die zwei Töchter mit ins Haus bringt.`
+  `Die Tochter eines reichen Mannes wächst wohlbehütet auf. Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. Zwei Jahre nach dem Tod ihrer Mutter heiratet der Vater eine Witwe, die zwei Töchter mit ins Haus bringt.`,
+  troubledWords
 );
-setTimeout(displayInterestingThings, 20000);
 
 //good code relating to errors:
 
