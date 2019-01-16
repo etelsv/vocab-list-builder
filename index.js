@@ -142,7 +142,7 @@ function displayInterestingThings() {
 }
 
 arrangeWordsForTranslation(
-  `Vater, Onkel, Bett`,
+  `Bald darauf kam der Winter und der Schnee deckte ein weißes Tüchlein über das Grab der Mutter. Als die Sonne es wieder weggezogen hatte und das kleine Bäumchen schon zum zweitenmal grün geworden war, nahm sich der Vater eine andere Frau. Die Stiefmutter aber hatte schon zwei Töchter. Diese waren von schöner Gestalt, aber in ihrem Herzen stolz und bösartig.`,
   troubledWords
 );
 
