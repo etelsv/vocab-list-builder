@@ -117,7 +117,7 @@ async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
   var paragraphArray = lcwordsToTranslate.split(" ");
   var wordsWithoutDups = Array.from(new Set(paragraphArray));
   var choices = wordsWithoutDups.sort();
-  inquirer
+  var answers = await inquirer
     .prompt([
       {
         type: "checkbox",
@@ -128,20 +128,21 @@ async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
       }
     ])
     .then(answers => {
-      console.log(JSON.stringify(answers, null, "  "));
+      //console.log(JSON.stringify(answers, null, "  "));
       return answers;
     });
-
-  //await createVocabList(answers.name);
+    console.log("this came out of the function:" + answers.name)
+    createVocabList(answers.name);
 }
 
 function displayInterestingThings() {
-  console.log(troubledWords);
-  console.log(vocabList);
+  var stringVocabList = JSON.stringify(vocabList)
+  console.log("trouble " + troubledWords);
+  console.log("look" + stringVocabList);
 }
 
 arrangeWordsForTranslation(
-  `Die Tochter eines reichen Mannes wächst wohlbehütet auf. Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. Zwei Jahre nach dem Tod ihrer Mutter heiratet der Vater eine Witwe, die zwei Töchter mit ins Haus bringt.`,
+  `Vater, Onkel, Bett`,
   troubledWords
 );
 
