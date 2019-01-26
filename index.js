@@ -30,16 +30,6 @@ function translateWord(wordSought) {
         var wordGender = body.def[0].gen;
         var definition = body.def[0].tr[0].text;
 
-        // console.log("german word = " + germanWord);
-        // console.log("Part of Speech = " + partOfSpeech);
-        // console.log("gender = " + wordGender);
-        // console.log("word endings = " + wordEndings);
-        // //console.log("plural= " + wordPlural);
-        // console.log("definition = " + definition);
-        // console.log("");
-        // console.log(
-        //   `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`
-        // );
         var aword = new Word(
           germanWord,
           partOfSpeech,
@@ -68,9 +58,6 @@ function translateWord(wordSought) {
               definition
             );
             vocabList.push(aword);
-
-            // console.log(body.def[0].text);
-            // console.log(body.def[0].tr[0].text);
           } catch (err) {
             troubledWords.push(wordSought);
           }
@@ -131,12 +118,12 @@ async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
       //console.log(JSON.stringify(answers, null, "  "));
       return answers;
     });
-    console.log("this came out of the function:" + answers.name)
-    createVocabList(answers.name);
+  console.log("this came out of the function:" + answers.name);
+  createVocabList(answers.name);
 }
 
 function displayInterestingThings() {
-  var stringVocabList = JSON.stringify(vocabList)
+  var stringVocabList = JSON.stringify(vocabList);
   console.log("trouble " + troubledWords);
   console.log("look" + stringVocabList);
 }
@@ -145,14 +132,3 @@ arrangeWordsForTranslation(
   `Bald darauf kam der Winter und der Schnee deckte ein weißes Tüchlein über das Grab der Mutter. Als die Sonne es wieder weggezogen hatte und das kleine Bäumchen schon zum zweitenmal grün geworden war, nahm sich der Vater eine andere Frau. Die Stiefmutter aber hatte schon zwei Töchter. Diese waren von schöner Gestalt, aber in ihrem Herzen stolz und bösartig.`,
   troubledWords
 );
-
-//good code relating to errors:
-
-// console.log(``);
-//         console.log(`There was an issue with ${wordSought}. Take a look:`);
-//         console.log(
-//           `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`
-//         );
-//         console.log(``);
-
-// Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. Zwei Jahre nach dem Tod ihrer Mutter heiratet der Vater eine Witwe, die zwei Töchter mit ins Haus bringt.`
