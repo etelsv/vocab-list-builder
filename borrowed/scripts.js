@@ -11,69 +11,80 @@ const key =
 
 app.appendChild(logo);
 app.appendChild(container);
-var request = new XMLHttpRequest();
 
 const allWords = [];
 
-function translateWord(wordSought) {
-  request.open(
-    'GET',
-    `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-    true,
-    console.log(
-      `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-    ),
-  );
-  request.onload = function() {
-    // Begin accessing JSON data here
-    var data = JSON.parse(this.response);
-    if (request.status >= 200 && request.status < 400) {
-      console.log(data);
+function translateWord(paragraphArray) {
+  for (var i = 0; i < paragraphArray.length; i++) {
+    var request = new XMLHttpRequest();
+
+    request.open(
+      'GET',
+      `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${
+        paragraphArray[i]
+      }`,
+      true,
+      console.log(
+        `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${
+          paragraphArray[i]
+        }`,
+      ),
+    );
+    (request.onload = function() {
+      var data = JSON.parse(this.response);
+      //console.log(data);
       runTranslationWork(data);
-    } else {
-      const errorMessage = document.createElement('marquee');
-      errorMessage.textContent = `Gah, it's not working!`;
-      app.appendChild(errorMessage);
-    }
-    request.send();
-  };
+      const card = document.createElement('div');
+      card.setAttribute('class', 'card');
+
+      const h1 = document.createElement('h1');
+      h1.textContent = data.def[0].pos;
+
+      const p = document.createElement('p');
+      // movie.description = movie.description.substring(0, 300);
+      p.textContent = `${data.def[0].text}...`;
+
+      container.appendChild(card);
+      card.appendChild(h1);
+      card.appendChild(p);
+
+      //console.log(data.def[0]);
+      // Begin accessing JSON data here
+
+      if (request.status >= 200 && request.status < 400) {
+        //console.log('reached?');
+        //console.log(data);
+        runTranslationWork(data);
+      } else {
+        const errorMessage = document.createElement('marquee');
+        errorMessage.textContent = `Gah, it's not working!`;
+        app.appendChild(errorMessage);
+      }
+    }),
+      request.send();
+  }
 }
 
-// function displayThings() {
-//   const card = document.createElement('div');
-//   card.setAttribute('class', 'card');
-
-//   const h1 = document.createElement('h1');
-//   h1.textContent = data.def[0].pos;
-
-//   const p = document.createElement('p');
-//   // movie.description = movie.description.substring(0, 300);
-//   p.textContent = `${data.def[0].text}...`;
-
-//   container.appendChild(card);
-//   card.appendChild(h1);
-//   card.appendChild(p);
-
-//   console.log(data.def[0]);
-// }
+function displayThings(data) {}
 
 function runTranslationWork(body) {
+  //console.log(body);
+  var fullResponse = body;
   var partOfSpeech = body.def[0].pos;
   var wordResponse = body.def[0];
-  allWords.push([partOfSpeech, wordResponse]);
-  //vocabList.push(wordResponse);
+  allWords.push([fullResponse, partOfSpeech, wordResponse]);
 }
 
-async function createVocabList(paragraphArray) {
-  for (var i = 0; i < paragraphArray.length; i++) {
-    console.log(i);
-    translateWord(paragraphArray[i]);
-    console.log(paragraphArray[i]);
-  }
-  // displayInterestingThings();
-}
+// async function createVocabList(paragraphArray) {
+//   for (var i = 0; i < paragraphArray.length; i++) {
+//     //console.log(i);
+//     await translateWord(paragraphArray[i]);
+//     //console.log(paragraphArray[i]);
+//   }
+//   // displayInterestingThings();
+// }
 
 paragraphArray = ['frau', 'onkel', 'tisch', 'bett'];
 
-createVocabList(paragraphArray);
-console.log(allWords);
+translateWord(paragraphArray);
+////console.log(allWords);
