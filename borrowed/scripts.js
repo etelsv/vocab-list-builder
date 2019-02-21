@@ -13,11 +13,11 @@ const allWords = [];
 const troubledWords = [];
 const vocabList = [];
 
-function translateWord(wordSought) {
+async function translateWord(wordSought) {
   //for (var i = 0; i < paragraphArray.length; i++) {
   var request = new XMLHttpRequest();
 
-  request.open(
+  await request.open(
     'GET',
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
     true,
@@ -28,10 +28,11 @@ function translateWord(wordSought) {
   (request.onload = function() {
     var data = JSON.parse(this.response);
     //console.log(data);
-    runTranslationWork(data);
+
     if (request.status >= 200 && request.status < 400) {
       //console.log('reached?');
       //console.log(data);
+
       runTranslationWork(data);
     } else {
       const errorMessage = document.createElement('marquee');
@@ -43,7 +44,7 @@ function translateWord(wordSought) {
 }
 //}
 
-function displayThings(data) {
+async function displayThings(data) {
   const card = document.createElement('div');
   card.setAttribute('class', 'card');
 
@@ -57,6 +58,7 @@ function displayThings(data) {
   container.appendChild(card);
   card.appendChild(h1);
   card.appendChild(p);
+  console.log('trouble ' + troubledWords);
 
   //console.log(data.def[0]);
   // Begin accessing JSON data here
@@ -102,7 +104,7 @@ app.appendChild(container);
 
 arrangeWordsForTranslation(
   `
-Es ist ja klar, dieser Mann möchte immer wie ein Sieger aussehen. So auch diesmal. Als Donald Trump im Rosengarten des Weißen Hauses vor die Presse tritt, um das vorläufige Ende des Shutdowns der US-Regierung zu verkünden, gibt er sich größte Mühe, präsidiale Stärke und Macht zu demonstrieren.`,
+  In den alten Zeiten, wo das Wünschen noch geholfen hat, lebte ein König, dessen Töchter waren alle schön; `,
   troubledWords,
 );
 ////console.log(allWords);
