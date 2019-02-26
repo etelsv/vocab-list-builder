@@ -1,8 +1,10 @@
 //things do with displays
 const app = document.getElementById('root');
+const moreInfo = document.getElementById('moreInfo');
+const inputArea = document.getElementById('inputArea');
 const logo = document.createElement('img');
-logo.src = 'logo.png';
 const container = document.createElement('div');
+//const bottomText = document.createElement('div');
 
 //things do with the API
 const key =
@@ -13,34 +15,59 @@ const allWords = [];
 const troubledWords = [];
 const vocabList = [];
 
-async function translateWord(wordSought) {
-  //for (var i = 0; i < paragraphArray.length; i++) {
-  var request = new XMLHttpRequest();
+//actual program
+logo.src = 'logo.png';
+container.setAttribute('class', 'container');
+app.appendChild(logo);
+app.appendChild(container);
 
-  await request.open(
+//app.appendChild(bottomText);
+
+arrangeWordsForTranslation(
+  `
+  Die Tochter eines reichen Mannes wächst wohlbehütet auf. Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. The oldest known oral version of the Cinderella story is the ancient Greek story of Rhodopis,[4][7] a Greek courtesan living in the colony of Naucratis in Egypt, whose name means "Rosy-Cheeks".  `,
+);
+
+////console.log(allWords);
+
+function translateWord(wordSought) {
+  //return new Promise((resolve, reject) => {
+  var request = new XMLHttpRequest();
+  // replace with Fetch ^
+  request.open(
     'GET',
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
     true,
-    console.log(
-      `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-    ),
-  );
-  (request.onload = function() {
-    var data = JSON.parse(this.response);
-    //console.log(data);
-
-    if (request.status >= 200 && request.status < 400) {
-      //console.log('reached?');
+    // console.log(
+    //   `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
+  ),
+    //);
+    (request.onload = function() {
+      var data = JSON.parse(this.response);
       //console.log(data);
 
-      runTranslationWork(data);
-    } else {
-      const errorMessage = document.createElement('marquee');
-      errorMessage.textContent = `Gah, it's not working!`;
-      app.appendChild(errorMessage);
-    }
-  }),
-    request.send();
+      if (request.status >= 200 && request.status < 400) {
+        //console.log('reached?');
+        //console.log(data);
+        try {
+          var partOfSpeech = data.def[0].pos;
+          // console.log(partOfSpeech);
+          runTranslationWork(data);
+          // vocabList.push(wordResponse);
+        } catch (err) {
+          // const errorMessage = document.createElement('marquee');
+          // errorMessage.textContent = wordSought;
+          // app.appendChild(errorMessage);
+          troubledWords.push(wordSought);
+          resolve();
+        }
+      } else {
+        // console.log(request.status);
+      }
+      moreInfo.textContent = troubledWords.join(', ');
+    });
+  request.send();
+  //});
 }
 //}
 
@@ -51,14 +78,19 @@ async function displayThings(data) {
   const h1 = document.createElement('h1');
   h1.textContent = data.def[0].text;
 
+  const h2 = document.createElement('h2');
+  h2.textContent = data.def[0].tr[0].text;
+
   const p = document.createElement('p');
   // movie.description = movie.description.substring(0, 300);
-  p.textContent = `${data.def[0].pos}` + ' ' + `${data.def[0].tr[0].text}...`;
+  p.textContent = `${data.def[0].pos}`;
 
   container.appendChild(card);
   card.appendChild(h1);
+  card.appendChild(h2);
   card.appendChild(p);
-  console.log('trouble ' + troubledWords);
+
+  // console.log(troubledWords);
 
   //console.log(data.def[0]);
   // Begin accessing JSON data here
@@ -74,37 +106,24 @@ function runTranslationWork(body) {
   displayThings(body);
 }
 
-async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
+async function arrangeWordsForTranslation(wordsToTranslate) {
   var wordsToTranslate2 = wordsToTranslate.replace(
     /[.,\/#!$%\^&\*;:{}=\-_`~()]/g,
     ' ',
   );
-  console.log(wordsToTranslate2);
+  // console.log(wordsToTranslate2);
   var lcwordsToTranslate = wordsToTranslate2.toLowerCase();
-  var paragraphArray = lcwordsToTranslate.split(' ');
-  //why is it not eliminating duplicates?
+  var paragraphArray = lcwordsToTranslate.split(/\s/);
   var wordsWithoutDups = Array.from(new Set(paragraphArray));
-  var choices = wordsWithoutDups.sort();
-  createVocabList(choices);
+  //var choices = wordsWithoutDups.sort();
+  await createVocabList(wordsWithoutDups);
 }
 
 async function createVocabList(paragraphArray) {
   for (var i = 0; i < paragraphArray.length; i++) {
-    console.log(i);
+    // console.log(i);
     await translateWord(paragraphArray[i]);
-    console.log(paragraphArray[i]);
+    // console.log(paragraphArray[i]);
   }
   // displayInterestingThings();
 }
-
-//actual program
-container.setAttribute('class', 'container');
-app.appendChild(logo);
-app.appendChild(container);
-
-arrangeWordsForTranslation(
-  `
-  In den alten Zeiten, wo das Wünschen noch geholfen hat, lebte ein König, dessen Töchter waren alle schön; `,
-  troubledWords,
-);
-////console.log(allWords);
