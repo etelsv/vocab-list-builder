@@ -1,15 +1,15 @@
-const request = require("request-promise");
+const request = require('request-promise');
 const key =
-  "dict.1.1.20190101T143458Z.9e934ebb5eb8f106.4c671e8c7f3a082535985d61affef702184348ad";
+  'dict.1.1.20190101T143458Z.9e934ebb5eb8f106.4c671e8c7f3a082535985d61affef702184348ad';
 var troubledWords = [];
 var vocabList = [];
 
-var inquirer = require("inquirer");
+var inquirer = require('inquirer');
 
 function translateWord(wordSought) {
   return request(
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-    { json: true }
+    { json: true },
   )
     .then(body => {
       try {
@@ -18,7 +18,7 @@ function translateWord(wordSought) {
       } catch (err) {
         return request(
           `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-ru&text=${wordSought}`,
-          { json: true }
+          { json: true },
         ).then(body => {
           try {
             runTranslationWork(body);
@@ -49,39 +49,39 @@ async function createVocabList(paragraphArray) {
 async function arrangeWordsForTranslation(wordsToTranslate, troubledWords) {
   var wordsToTranslate2 = wordsToTranslate.replace(
     /[.,\/#!$%\^&\*;:{}=\-_`~()]/g,
-    " "
+    ' ',
   );
   var lcwordsToTranslate = wordsToTranslate2.toLowerCase();
-  var paragraphArray = lcwordsToTranslate.split(" ");
+  var paragraphArray = lcwordsToTranslate.split(' ');
   var wordsWithoutDups = Array.from(new Set(paragraphArray));
   var choices = wordsWithoutDups.sort();
   var answers = await inquirer
     .prompt([
       {
-        type: "checkbox",
-        name: "name",
-        message: "Select the words you want to look up!",
+        type: 'checkbox',
+        name: 'name',
+        message: 'Select the words you want to look up!',
         paginated: true,
-        choices: choices
-      }
+        choices: choices,
+      },
     ])
     .then(answers => {
       //console.log(JSON.stringify(answers, null, "  "));
       return answers;
     });
-  console.log("this came out of the function:" + answers.name);
+  console.log('this came out of the function:' + answers.name);
   createVocabList(answers.name);
 }
 
 function displayInterestingThings() {
   console.log(vocabList);
   //var stringVocabList = JSON.stringify(vocabList);
-  console.log("trouble " + troubledWords);
+  console.log('trouble ' + troubledWords);
   //console.log("look" + stringVocabList);
 }
 
 arrangeWordsForTranslation(
   `
 Es ist ja klar, dieser Mann möchte immer wie ein Sieger aussehen. So auch diesmal. Als Donald Trump im Rosengarten des Weißen Hauses vor die Presse tritt, um das vorläufige Ende des Shutdowns der US-Regierung zu verkünden, gibt er sich größte Mühe, präsidiale Stärke und Macht zu demonstrieren.`,
-  troubledWords
+  troubledWords,
 );

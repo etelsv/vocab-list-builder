@@ -14,7 +14,6 @@ const key =
 const allWords = [];
 const troubledWords = [];
 const vocabList = [];
-const wordsSubmitted;
 
 //actual program
 logo.src = 'logo.png';
@@ -23,31 +22,54 @@ app.appendChild(logo);
 app.appendChild(container);
 
 //app.appendChild(bottomText);
-wordsSubmitted= document.querySelector('input[name="Words to Translate"]').value;
 
 arrangeWordsForTranslation(
-  wordsSubmitted
+  `
+  Die Tochter eines reichen Mannes wächst wohlbehütet auf. Als die Mutter stirbt, bittet sie auf dem Totenbett die Tochter, ein Bäumlein auf ihrem Grab zu pflanzen, an dem sie rütteln solle, wenn sie einen Wunsch habe, was die Tochter auch tut. The oldest known oral version of the Cinderella story is the ancient Greek story of Rhodopis,[4][7] a Greek courtesan living in the colony of Naucratis in Egypt, whose name means "Rosy-Cheeks".  `,
 );
 
 ////console.log(allWords);
 
-async function translateWord(wordSought) {
-  fetch(
+function translateWord(wordSought) {
+  //return new Promise((resolve, reject) => {
+  var request = new XMLHttpRequest();
+  // replace with Fetch ^
+  request.open(
+    'GET',
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
-  )
-    .then(response => response.json())
-    .then(data => {
-      try {
-        var partOfSpeech = data.def[0].pos;
-        console.log(partOfSpeech);
-        runTranslationWork(data);
-        vocabList.push(wordResponse);
-      } catch (err) {
-        troubledWords.push(wordSought);
+    true,
+    // console.log(
+    //   `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,
+  ),
+    //);
+    (request.onload = function() {
+      var data = JSON.parse(this.response);
+      //console.log(data);
+
+      if (request.status >= 200 && request.status < 400) {
+        //console.log('reached?');
+        //console.log(data);
+        try {
+          var partOfSpeech = data.def[0].pos;
+          // console.log(partOfSpeech);
+          runTranslationWork(data);
+          // vocabList.push(wordResponse);
+        } catch (err) {
+          // const errorMessage = document.createElement('marquee');
+          // errorMessage.textContent = wordSought;
+          // app.appendChild(errorMessage);
+          troubledWords.push(wordSought);
+          resolve();
+        }
+      } else {
+        // console.log(request.status);
       }
       moreInfo.textContent = troubledWords.join(', ');
     });
+  request.send();
+  //});
 }
+//}
 
 async function displayThings(data) {
   const card = document.createElement('div');
