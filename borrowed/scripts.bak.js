@@ -32,8 +32,7 @@ arrangeWordsForTranslation(
 
 function translateWord(wordSought) {
   //return new Promise((resolve, reject) => {
-  var request = new XMLHttpRequest();
-  // replace with Fetch ^
+  
   request.open(
     'GET',
     `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${key}&lang=de-en&text=${wordSought}`,

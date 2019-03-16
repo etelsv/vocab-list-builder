@@ -14,22 +14,23 @@ const key =
 const allWords = [];
 const troubledWords = [];
 const vocabList = [];
-const wordsSubmitted;
+let wordsSubmitted;
 
 //actual program
+
+//app.appendChild(bottomText);
+//wordsSubmitted = document.getElementById('a').value;
+//console.log(wordsSubmitted);
 logo.src = 'logo.png';
 container.setAttribute('class', 'container');
 app.appendChild(logo);
 app.appendChild(container);
 
-//app.appendChild(bottomText);
-wordsSubmitted= document.querySelector('input[name="Words to Translate"]').value;
-
-arrangeWordsForTranslation(
-  wordsSubmitted
-);
-
-////console.log(allWords);
+document.getElementById('button').addEventListener('click', function() {
+  wordsSubmitted = document.getElementById('a').value;
+  //console.log(wordsSubmitted);
+  arrangeWordsForTranslation(wordsSubmitted);
+});
 
 async function translateWord(wordSought) {
   fetch(
@@ -39,10 +40,11 @@ async function translateWord(wordSought) {
     .then(data => {
       try {
         var partOfSpeech = data.def[0].pos;
-        console.log(partOfSpeech);
         runTranslationWork(data);
-        vocabList.push(wordResponse);
+        //vocabList.push(wordResponse);
       } catch (err) {
+        console.log(err);
+        console.log('there is a problem with ' + wordSought);
         troubledWords.push(wordSought);
       }
       moreInfo.textContent = troubledWords.join(', ');
@@ -68,30 +70,31 @@ async function displayThings(data) {
   card.appendChild(h2);
   card.appendChild(p);
 
-  // console.log(troubledWords);
+  // //console.log(troubledWords);
 
-  //console.log(data.def[0]);
+  ////console.log(data.def[0]);
   // Begin accessing JSON data here
 }
 
 function runTranslationWork(body) {
-  //console.log(body);
+  ////console.log(body);
   //var fullResponse = body;
   // var partOfSpeech = body.def[0].pos;
-  // var wordResponse = body.def[0];
+  var wordResponse = body.def[0];
+  //console.log(wordResponse);
   // allWords.push([fullResponse, partOfSpeech, wordResponse]);
-  //vocabList.push(wordResponse);
+  vocabList.push(wordResponse);
   displayThings(body);
 }
 
 async function arrangeWordsForTranslation(wordsToTranslate) {
   var wordsToTranslate2 = wordsToTranslate.replace(
-    /[.,\/#!$%\^&\*;:{}=\-_`~()]/g,
+    /[.,\/#!$%\^&\*;:{}=\-_`~()]\s/g,
     ' ',
   );
-  // console.log(wordsToTranslate2);
-  var lcwordsToTranslate = wordsToTranslate2.toLowerCase();
-  var paragraphArray = lcwordsToTranslate.split(/\s/);
+  console.log(wordsToTranslate2);
+  //var lcwordsToTranslate = wordsToTranslate2.toLowerCase();
+  var paragraphArray = wordsToTranslate2.split(/\s/);
   var wordsWithoutDups = Array.from(new Set(paragraphArray));
   //var choices = wordsWithoutDups.sort();
   await createVocabList(wordsWithoutDups);
@@ -99,9 +102,9 @@ async function arrangeWordsForTranslation(wordsToTranslate) {
 
 async function createVocabList(paragraphArray) {
   for (var i = 0; i < paragraphArray.length; i++) {
-    // console.log(i);
+    // //console.log(i);
     await translateWord(paragraphArray[i]);
-    // console.log(paragraphArray[i]);
+    // //console.log(paragraphArray[i]);
   }
   // displayInterestingThings();
 }
